@@ -5,6 +5,9 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import adres.Adres;
+import adres.AdresDAO;
+import adres.AdresDAOHibernate;
 import reiziger.Reiziger;
 import reiziger.ReizigerDAO;
 import reiziger.ReizigerDAOHibernate;
@@ -16,8 +19,10 @@ public class Main {
             SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
     
             ReizigerDAO reizigerDAO = new ReizigerDAOHibernate(sessionFactory);
+            AdresDAO adresDAO = new AdresDAOHibernate(sessionFactory);
     
             testReizigerDAO(reizigerDAO);
+            testAdresDAO(adresDAO, reizigerDAO);
         } catch (Exception e) {
             System.err.println("[Main] " + e.getMessage());
             e.printStackTrace();
@@ -78,5 +83,58 @@ public class Main {
         for (Reiziger r : reizigers) {
             System.out.println(r);
         }
+    }
+
+    /**
+     * P3. Adres DAO: persistentie van een één op één relatie
+     *
+     * Deze methode test de CRUD-functionaliteit van de Adres DAO
+     *
+     * @throws SQLException
+     */
+    private static void testAdresDAO(AdresDAO adresDAO, ReizigerDAO reizigerDAO) throws SQLException {
+        System.out.println("\n---------- Test AdresDAO -------------");
+
+        // Haal alle adressen op uit de database
+        List<Adres> adressen = adresDAO.findAll();
+        System.out.println("[Test] AdresDAO.findAll() geeft de volgende adressen:");
+        for (Adres a : adressen) {
+            System.out.println(a);
+        }
+        System.out.println();
+
+        // Breng Sietske terug in leven
+        String gbdatum = "1981-03-14";
+        Reiziger sietske = new Reiziger(77, "S", "", "Boers", LocalDate.parse(gbdatum));
+        reizigerDAO.save(sietske);
+
+        // Maak een nieuwe adres aan en persisteer deze in de database
+        Adres sietskeAdres = new Adres(77, "3332KS", "7", "Volgerland", "Zwijndrecht", sietske);
+        sietske.setAdres(sietskeAdres);
+        System.out.print("[Test] Eerst " + adressen.size() + " adressen, na AdresDAO.save() ");
+        adresDAO.save(sietskeAdres);
+        adressen = adresDAO.findAll();
+        System.out.println(adressen.size() + " adressen");
+        System.out.println();
+
+        // Update test door het sietske object aan te passen en opnieuw te persisteren.
+        sietskeAdres.setStraat("Nieuwstraat");
+        System.out.println("[Test] Oud adres #77: " + adresDAO.findById(77));
+        adresDAO.update(sietskeAdres);
+        System.out.println("[Test] Nieuw adres #77: " + adresDAO.findById(77));
+        System.out.println();
+
+        // Haal het adres van sietske op
+        Adres adresFromSietske = adresDAO.findByReiziger(sietske);
+        System.out.println("[Test] Het adres van Sietske: " + adresFromSietske);
+        System.out.println();
+
+        // Verwijder sietske uit de database
+        System.out.println("[Test] Aantal adressen voor delete: " + adresDAO.findAll().size());
+        adresDAO.delete(sietskeAdres);
+        System.out.println("[Test] Aantal adressen na delete: " + adresDAO.findAll().size());
+
+        // Maak de database weer schoon
+        reizigerDAO.delete(sietske);
     }
 }

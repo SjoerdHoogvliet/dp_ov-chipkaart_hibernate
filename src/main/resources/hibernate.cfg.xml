@@ -18,5 +18,6 @@
 
         <!-- Mapping classes -->
         <mapping class="reiziger.Reiziger"/>
+        <mapping class="adres.Adres"/>
     </session-factory>
 </hibernate-configuration>
