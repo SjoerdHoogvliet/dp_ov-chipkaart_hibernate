@@ -2,8 +2,11 @@ package reiziger;
 
 import java.time.LocalDate;
 
+import adres.Adres;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Reiziger {
@@ -13,6 +16,8 @@ public class Reiziger {
     private String tussenvoegsel;
     private String achternaam;
     private LocalDate geboortedatum;
+    @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
+    private Adres adres;
 
     // JPA required empty constructor
     public Reiziger() {}
@@ -41,11 +46,17 @@ public class Reiziger {
     }
 
     public String toString() {
-        return "Reiziger #%d: %s (%s)".formatted(
+        String returnString = "Reiziger #%d: %s (%s)".formatted(
             reiziger_id,
             this.getNaam(),
             geboortedatum
         );
+
+        if (adres != null) {
+            returnString += "; " + adres.toString();
+        }
+
+        return returnString;
     }
 
     //*** Get/Set ***//
@@ -87,5 +98,13 @@ public class Reiziger {
 
     public void setGeboortedatum(LocalDate geboortedatum) {
         this.geboortedatum = geboortedatum;
+    }
+
+    public Adres getAdres() {
+        return adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
     }
 }
