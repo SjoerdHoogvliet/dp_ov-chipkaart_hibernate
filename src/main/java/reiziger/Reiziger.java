@@ -24,7 +24,9 @@ public class Reiziger {
     @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
     // We only want OV Chipkaarten when there is a reiziger associated, therefore we can do Cascade = ALL
-    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // Since we want to display the OV Chipkaarten when we display a reiziger, we need to fetch them eagerly, 
+    // this is okay because the size is small, otherwise use LAZY and initialize whats necessary
+    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OVChipkaart> ovChipkaarten = new ArrayList<>();
 
     // JPA required empty constructor
@@ -62,6 +64,13 @@ public class Reiziger {
 
         if (adres != null) {
             returnString += "; " + adres.toString();
+        }
+
+        if (ovChipkaarten != null) {
+            returnString += "\nHeeft de volgende OV Chipkaarten:";
+            for (OVChipkaart ovchipkaart : this.getOVChipkaarten()) {
+                returnString += "\n" + ovchipkaart;
+            }
         }
 
         return returnString;
@@ -126,7 +135,11 @@ public class Reiziger {
         this.adres = adres;
     }
 
-    public List<OVChipkaart> getOvChipkaarten() {
+    public void setOVChipkaarten(List<OVChipkaart> ovChipkaarten) {
+        this.ovChipkaarten = ovChipkaarten;
+    }
+
+    public List<OVChipkaart> getOVChipkaarten() {
         return ovChipkaarten;
     }
 }
