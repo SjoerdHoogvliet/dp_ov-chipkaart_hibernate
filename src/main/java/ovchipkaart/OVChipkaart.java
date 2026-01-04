@@ -21,9 +21,12 @@ public class OVChipkaart {
     private LocalDate geldigTot;
     private Integer klasse;
     private float saldo;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "reiziger_id", nullable = false)
     private Reiziger reiziger;
+
+    // JPA required empty constructor
+    public OVChipkaart() {}
 
     public OVChipkaart(Integer kaartNummer, LocalDate geldigTot, Integer klasse, float saldo, Reiziger reiziger) {
         this.kaartNummer = kaartNummer;

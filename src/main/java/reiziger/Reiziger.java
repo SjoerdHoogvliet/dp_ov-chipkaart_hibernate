@@ -7,6 +7,7 @@ import java.util.List;
 import adres.Adres;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -22,7 +23,8 @@ public class Reiziger {
     private LocalDate geboortedatum;
     @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
-    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL)
+    // We only want OV Chipkaarten when there is a reiziger associated, therefore we can do Cascade = ALL
+    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OVChipkaart> ovChipkaarten = new ArrayList<>();
 
     // JPA required empty constructor
