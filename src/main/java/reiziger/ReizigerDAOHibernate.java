@@ -7,11 +7,19 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import adres.AdresDAO;
+
 public class ReizigerDAOHibernate implements ReizigerDAO {
     SessionFactory sessionFactory;
-    
+    AdresDAO adresDAO;
+
     public ReizigerDAOHibernate(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    @Override
+    public void setAdresDAO(AdresDAO adresDAO) {
+        this.adresDAO = adresDAO;
     }
 
     @Override
@@ -74,6 +82,9 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
         try {
             Reiziger reiziger = session.find(Reiziger.class, reiziger_id);
             session.close();
+
+            reiziger.setAdres(adresDAO.findByReiziger(reiziger));;
+
             return reiziger;
         } catch (Exception e) {
             System.err.println("[ReizigerDAOHibernate.findById] " + e.getMessage());
@@ -92,6 +103,11 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
                 .getResultList();
 
             session.close();
+
+            for (Reiziger r : reizigers) {
+                r.setAdres(adresDAO.findByReiziger(r));
+            }
+
             return reizigers;
         } catch (Exception e) {
             System.err.println("[ReizigerDAOHibernate.findByGbdatum] " + e.getMessage());
@@ -107,6 +123,11 @@ public class ReizigerDAOHibernate implements ReizigerDAO {
         try {
             List<Reiziger> reizigers = session.createQuery("from Reiziger", Reiziger.class).getResultList();
             session.close();
+            
+            for (Reiziger r : reizigers) {
+                r.setAdres(adresDAO.findByReiziger(r));
+            }
+
             return reizigers;
         } catch (Exception e) {
             System.err.println("[ReizigerDAOHibernate.findAll] " + e.getMessage());
