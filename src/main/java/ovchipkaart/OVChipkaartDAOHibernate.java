@@ -88,12 +88,12 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
     public List<OVChipkaart> findByReiziger(Reiziger reiziger) {
         Session session = sessionFactory.openSession();
         try {
-            List<OVChipkaart> ovchipkaarts = session.createQuery("from OVChipkaart where reiziger = :reiziger", OVChipkaart.class)
+            List<OVChipkaart> ovchipkaarten = session.createQuery("from OVChipkaart where reiziger = :reiziger", OVChipkaart.class)
                 .setParameter("reiziger", reiziger)
                 .getResultList();
 
             session.close();
-            return ovchipkaarts;
+            return ovchipkaarten;
         } catch (Exception e) {
             System.err.println("[OVChipkaartDAOHibernate.findByReiziger] " + e.getMessage());
             e.printStackTrace();
@@ -106,9 +106,9 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
     public List<OVChipkaart> findAll() {
         Session session = sessionFactory.openSession();
         try {
-            List<OVChipkaart> ovchipkaarts = session.createQuery("from OVChipkaart", OVChipkaart.class).getResultList();
+            List<OVChipkaart> ovchipkaarten = session.createQuery("from OVChipkaart", OVChipkaart.class).getResultList();
             session.close();
-            return ovchipkaarts;
+            return ovchipkaarten;
         } catch (Exception e) {
             System.err.println("[OVChipkaartDAOHibernate.findAll] " + e.getMessage());
             e.printStackTrace();
