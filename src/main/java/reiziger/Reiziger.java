@@ -1,12 +1,16 @@
 package reiziger;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import adres.Adres;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import ovchipkaart.OVChipkaart;
 
 @Entity
 public class Reiziger {
@@ -18,6 +22,8 @@ public class Reiziger {
     private LocalDate geboortedatum;
     @OneToOne(mappedBy = "reiziger", cascade = CascadeType.ALL)
     private Adres adres;
+    @OneToMany(mappedBy = "reiziger", cascade = CascadeType.ALL)
+    private List<OVChipkaart> ovChipkaarten = new ArrayList<>();
 
     // JPA required empty constructor
     public Reiziger() {}
@@ -57,6 +63,16 @@ public class Reiziger {
         }
 
         return returnString;
+    }
+
+    public void addOVChipkaart(OVChipkaart ovchipkaart) {
+        if(!this.ovChipkaarten.contains(ovchipkaart)) {
+            this.ovChipkaarten.add(ovchipkaart);
+        }
+    }
+
+    public void removeOVChipkaart(OVChipkaart ovchipkaart) {
+        this.ovChipkaarten.remove(ovchipkaart);
     }
 
     //*** Get/Set ***//
@@ -106,5 +122,9 @@ public class Reiziger {
 
     public void setAdres(Adres adres) {
         this.adres = adres;
+    }
+
+    public List<OVChipkaart> getOvChipkaarten() {
+        return ovChipkaarten;
     }
 }
