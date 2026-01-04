@@ -8,6 +8,9 @@ import org.hibernate.cfg.Configuration;
 import adres.Adres;
 import adres.AdresDAO;
 import adres.AdresDAOHibernate;
+import ovchipkaart.OVChipkaart;
+import ovchipkaart.OVChipkaartDAO;
+import ovchipkaart.OVChipkaartDAOHibernate;
 import reiziger.Reiziger;
 import reiziger.ReizigerDAO;
 import reiziger.ReizigerDAOHibernate;
@@ -20,9 +23,11 @@ public class Main {
     
             ReizigerDAO reizigerDAO = new ReizigerDAOHibernate(sessionFactory);
             AdresDAO adresDAO = new AdresDAOHibernate(sessionFactory);
+            OVChipkaartDAO ovchipkaartDAO = new OVChipkaartDAOHibernate(sessionFactory);
     
             testReizigerDAO(reizigerDAO);
             testAdresDAO(adresDAO, reizigerDAO);
+            testOVChipkaartDAO(ovchipkaartDAO, reizigerDAO);
         } catch (Exception e) {
             System.err.println("[Main] " + e.getMessage());
             e.printStackTrace();
@@ -133,6 +138,61 @@ public class Main {
         System.out.println("[Test] Aantal adressen voor delete: " + adresDAO.findAll().size());
         adresDAO.delete(sietskeAdres);
         System.out.println("[Test] Aantal adressen na delete: " + adresDAO.findAll().size());
+
+        // Maak de database weer schoon
+        reizigerDAO.delete(sietske);
+    }
+
+    /**
+     * P4. OV Chipkaart DAO: persistentie van een één op veel relatie
+     *
+     * Deze methode test de CRUD-functionaliteit van de OV Chipkaart DAO
+     *
+     * @throws SQLException
+     */
+    public static void testOVChipkaartDAO(OVChipkaartDAO ovchipkaartDAO, ReizigerDAO reizigerDAO) throws SQLException {
+        System.out.println("\n---------- Test OVChipkaartDAO -------------");
+
+        // Haal alle ovchipkaarten op uit de database
+        List<OVChipkaart> ovchipkaarten = ovchipkaartDAO.findAll();
+        System.out.println("[Test] OVChipkaartDAO.findAll() geeft de volgende ovchipkaarten:");
+        for (OVChipkaart o : ovchipkaarten) {
+            System.out.println(o);
+        }
+        System.out.println();
+
+        // Breng Sietske terug in leven
+        String gbdatum = "1981-03-14";
+        Reiziger sietske = new Reiziger(77, "S", "", "Boers", LocalDate.parse(gbdatum));
+        reizigerDAO.save(sietske);
+
+        // Maak een nieuwe ovchipkaart aan en persisteer deze in de database
+        OVChipkaart sietskeOVChipkaart = new OVChipkaart(77, LocalDate.parse(gbdatum), 2, 100, sietske);
+        sietske.addOVChipkaart(sietskeOVChipkaart);
+        System.out.print("[Test] Eerst " + ovchipkaarten.size() + " ovchipkaarten, na OVChipkaartDAO.save() ");
+        ovchipkaartDAO.save(sietskeOVChipkaart);
+        ovchipkaarten = ovchipkaartDAO.findAll();
+        System.out.println(ovchipkaarten.size() + " ovchipkaarten\n");
+
+        // Update test door sietskes OV Chipkaart aan te passen en opnieuw te persisteren.
+        sietskeOVChipkaart.setSaldo(200);
+        System.out.println("[Test] Oude OV Chipkaart: " + ovchipkaartDAO.findByKaartNummer(77));
+        ovchipkaartDAO.update(sietskeOVChipkaart);
+        System.out.println("[Test] Nieuwe OV Chipkaart: " + ovchipkaartDAO.findByKaartNummer(77));
+
+        // Haal alle ovchipkaarten van Sietske uit de database
+        List<OVChipkaart> ovchipkaartenFromGbdatum = ovchipkaartDAO.findByReiziger(sietske);
+        System.out.println("[Test] Alle OV Chipkaarten van Sietske:");
+        for (OVChipkaart o : ovchipkaartenFromGbdatum) {
+            System.out.println(o);
+        }
+        System.out.println();
+
+        // Verwijder de OV Chipkaart van Sietske uit de database
+        System.out.println("[Test] Aantal ovchipkaarten voor delete: " + ovchipkaartDAO.findAll().size());
+
+        ovchipkaartDAO.delete(sietskeOVChipkaart);
+        System.out.println("[Test] Aantal ovchipkaarten na delete: " + ovchipkaartDAO.findAll().size());
 
         // Maak de database weer schoon
         reizigerDAO.delete(sietske);
