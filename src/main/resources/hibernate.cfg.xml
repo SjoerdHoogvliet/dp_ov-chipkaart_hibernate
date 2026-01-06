@@ -20,5 +20,7 @@
         <mapping class="reiziger.Reiziger"/>
         <mapping class="adres.Adres"/>
         <mapping class="ovchipkaart.OVChipkaart"/>
+        <mapping class="product.Product"/>
+        <mapping class="ovchipkaartproduct.OVChipkaartProduct"/>
     </session-factory>
 </hibernate-configuration>
