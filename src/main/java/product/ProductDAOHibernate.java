@@ -46,14 +46,17 @@ public class ProductDAOHibernate implements ProductDAO {
             existingProduct.setBeschrijving(product.getBeschrijving());
             existingProduct.setPrijs(product.getPrijs());
             existingProduct.getOVChipkaartRelaties().clear();
-            
-            List<OVChipkaartProduct> relations = session.createQuery("select relation from OVChipkaartProduct relation where relation.product = :product", OVChipkaartProduct.class)
-                .setParameter("product", existingProduct)
-                .getResultList();
 
-            for (OVChipkaartProduct r : relations) {
-                existingProduct.addOVChipkaart(r.getOvChipkaart());
+            for (OVChipkaartProduct rel : product.getOVChipkaartRelaties()) {
+
+                OVChipkaart managedOv = session.find(OVChipkaart.class, rel.getOvChipkaart().getKaartNummer());
+
+                OVChipkaartProduct newRel = new OVChipkaartProduct(managedOv, existingProduct, null, null);
+
+                existingProduct.getOVChipkaartRelaties().add(newRel);
+                managedOv.getProductRelaties().add(newRel);
             }
+
             transaction.commit();
             session.close();
             return true;

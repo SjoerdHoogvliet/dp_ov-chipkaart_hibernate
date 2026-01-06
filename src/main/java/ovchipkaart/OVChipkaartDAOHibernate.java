@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import ovchipkaartproduct.OVChipkaartProduct;
+import product.Product;
 import reiziger.Reiziger;
 
 public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
@@ -48,14 +49,17 @@ public class OVChipkaartDAOHibernate implements OVChipkaartDAO {
             existingOVChipkaart.setKlasse(ovchipkaart.getKlasse());
             existingOVChipkaart.setReiziger(ovchipkaart.getReiziger());
             existingOVChipkaart.getProductRelaties().clear();
-            
-            List<OVChipkaartProduct> relations = session.createQuery("select relation from OVChipkaartProduct relation where relation.ovChipkaart = :ovChipkaart", OVChipkaartProduct.class)
-                .setParameter("ovChipkaart", existingOVChipkaart)
-                .getResultList();
 
-            for (OVChipkaartProduct r : relations) {
-                existingOVChipkaart.addProduct(r.getProduct());
+            for (OVChipkaartProduct rel : ovchipkaart.getProductRelaties()) {
+
+                Product managedProduct = session.find(Product.class, rel.getProduct().getProductNummer());
+
+                OVChipkaartProduct newRel = new OVChipkaartProduct(existingOVChipkaart, managedProduct, null, null);
+
+                existingOVChipkaart.getProductRelaties().add(newRel);
+                managedProduct.getOVChipkaartRelaties().add(newRel);
             }
+
             transaction.commit();
             session.close();
             return true;
