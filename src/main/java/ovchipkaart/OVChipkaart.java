@@ -31,7 +31,8 @@ public class OVChipkaart {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "reiziger_id", nullable = false)
     private Reiziger reiziger;
-    @OneToMany(mappedBy = "ovChipkaart", orphanRemoval = true)
+    // Since the relations should only exist in relation to a ovchipkaart cascade = all. Also we dont want relations that are not linked to a product, therefore, orphanRemoval = true
+    @OneToMany(mappedBy = "ovChipkaart", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<OVChipkaartProduct> productRelaties = new ArrayList<>();
 
     // JPA required empty constructor
@@ -71,6 +72,8 @@ public class OVChipkaart {
             }
         }
         this.productRelaties.add(new OVChipkaartProduct(this, product));
+        // OVChipkaart is the owning side, should also set the inverse side
+        product.addOVChipkaart(this);
     }
 
     public void removeProduct(Product product) {

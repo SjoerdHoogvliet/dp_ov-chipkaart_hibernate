@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,7 +21,8 @@ public class Product {
     private String naam;
     private String beschrijving;
     private float prijs;
-    @OneToMany(mappedBy = "product", orphanRemoval = true)
+    // Since the relations should only exist in relation to a product cascade = all. Also we dont want relations that are not linked to a product, therefore, orphanRemoval = true
+    @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<OVChipkaartProduct> ovChipkaartRelaties = new ArrayList<>();
 
     // JPA required empty constructor
